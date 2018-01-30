@@ -15,7 +15,7 @@ The goals / steps of this project are the following:
 * Estimate a bounding box for vehicles detected.
 
 [//]: # (Image References)
-[image1]: ./examples/car_not_car.png
+[image1]: ./Car_Images.jpg
 [image2]: ./HOG_Features.jpg
 [image3]: ./Window_Selection.jpg
 [image4]: ./Pipeline_Ex.jpg
@@ -56,7 +56,7 @@ Here is an example of one of each of the `vehicle` and `non-vehicle` classes:
 
 ![alt text][image1]
 
-I then explored different color spaces and different `skimage.hog()` parameters (`orientations`, `pixels_per_cell`, and `cells_per_block`).  I grabbed random images from each of the two classes and displayed them to get a feel for what the `skimage.hog()` output looks like.
+I explored different color spaces and different `skimage.hog()` parameters (`orientations`, `pixels_per_cell`, and `cells_per_block`).  I grabbed random images from each of the two classes and displayed them to get a feel for what the `skimage.hog()` output looks like.
 
 Here is an example using gray scale and HOG parameters of `orientations=10`, `pixels_per_cell=(16, 16)` and `cells_per_block=(2, 2)`:
 
@@ -227,12 +227,14 @@ Ultimately I searched on 3 scales at 6 different places in the image using HSV 3
 ### Video Implementation
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
-Here's a [link to my video result](./project_video.mp4)
+Here's a [link to my video result](./project_video_out.mp4)
 
 
 #### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
 
-I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap and then thresholded that map to identify vehicle positions.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.  
+In order to filter out false positives, I logged all the positive detection locations for the past 15 frames. I generated a heatmap which integrates a positive detection in the image location. I then thresholded the map to identify pass or fail criteria for identifying the car by setting the threshold to half of the past 15 frames.
+
+I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap. Boxes were drawn around the blobs for the final boxes seen in the video.
 
 ### Here is an example of a test image on its heatmap:
 
@@ -247,4 +249,4 @@ I recorded the positions of positive detections in each frame of the video.  Fro
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+My main issues were dealing with false positives and tuning the correct threshold to use in combination with the right window sizes. I found it fairly easy to train the classifier to distinguish between a car and not a car. However, I found that finding the right balance between ensuring all the scales were selected appropriately along with the correct threshold was difficult. I especially had more difficulty with the cars moving further away in the image and quickly. The new locations didn't have enough history, but I also didn't want to attract false positives. I think it could fail more easily if I wanted to track faster moving objects. If I could assign different velocities of objects moving in the image with thresholds, it might provide more robustness to tracking.
